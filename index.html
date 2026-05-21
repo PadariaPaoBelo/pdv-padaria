@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDV Padaria Pão Belo</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="favicon-pao-belo.png">
+</head>
+<body>
+  <div id="loginScreen" class="screen screen-login active">
+    <div class="login-card">
+      <div class="login-brand">
+        <h1>Padaria Pão Belo</h1>
+        <p>PDV local simples, rápido e organizado</p>
+      </div>
+
+      <div class="form-grid single-col">
+        <div class="field">
+          <label for="loginUser">Usuário</label>
+          <input id="loginUser" type="text" placeholder="Digite o usuário" autocomplete="username" />
+        </div>
+
+        <div class="field">
+          <label for="loginPass">Senha</label>
+          <input id="loginPass" type="password" placeholder="Digite a senha" autocomplete="current-password" />
+        </div>
+      </div>
+
+      <div class="login-actions">
+        <button id="loginBtn" class="btn btn-primary" type="button">Entrar</button>
+      </div>
+
+      <div class="login-hint">
+        <span>Base inicial: admin / 1234</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="appScreen" class="screen screen-app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-box">
+          <div class="brand-logo">
+            <img src="logo-pao-belo.png" alt="Logo Padaria Pão Belo" />
+          </div>
+
+          <div class="brand-text">
+            <h1>Padaria Pão Belo</h1>
+            <p>Venda, caixa, estoque e relatórios</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div id="localStatus" class="status-chip">Dados locais ativos</div>
+        <div id="userBadge" class="user-chip">Não logado</div>
+        <button id="logoutBtn" class="btn btn-ghost" type="button">Sair</button>
+      </div>
+    </header>
+
+    <main class="app-body">
+      <section id="tabVenda" class="tab-section active">
+        <div class="sale-layout">
+          <div class="sale-left panel">
+            <div class="panel-head panel-head-sale">
+              <div>
+                <h2>Venda</h2>
+                <p class="panel-subtitle" id="salePanelSubtitle"></p>
+              </div>
+              <div class="sale-head-kpis">
+                <div class="mini-kpi">
+                  <span>Itens</span>
+                  <strong id="saleItemsTop">0</strong>
+                </div>
+                <div class="mini-kpi">
+                  <span>Total</span>
+                  <strong id="saleTotalTop">R$ 0,00</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="cart-toolbar">
+              <div class="cart-toolbar-title">Carrinho atual</div>
+            </div>
+
+            <div id="cartList" class="cart-list-simple"></div>
+          </div>
+
+          <aside class="sale-right panel">
+            <div class="panel-head">
+              <div>
+                <h2>Busca de produtos</h2>
+                <p class="panel-subtitle">Área fixa para operação rápida</p>
+              </div>
+            </div>
+
+            <div class="form-grid sale-search-grid">
+              <div class="field field-grow">
+                <label for="searchProduct">Buscar produto ou código</label>
+                <input id="searchProduct" type="text" placeholder="Digite nome, código ou use o leitor" />
+              </div>
+
+              <div class="field field-qty">
+                <label for="quickQty">Qtd./Kg</label>
+                <input id="quickQty" type="number" min="0" step="0.001" value="0" />
+              </div>
+            </div>
+
+            <div id="quickProducts" class="quick-products-list"></div>
+
+            <div class="summary-grid sale-summary-grid">
+              <div class="summary-card">
+                <span>Itens</span>
+                <strong id="saleItems">0</strong>
+              </div>
+              <div class="summary-card">
+                <span>Total</span>
+                <strong id="saleTotal">R$ 0,00</strong>
+              </div>
+              <div class="summary-card">
+                <span>Troco</span>
+                <strong id="saleChange">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="form-grid two-col">
+              <div class="field">
+                <label for="paymentMethod">Pagamento</label>
+                <select id="paymentMethod">
+                  <option value="Dinheiro">Dinheiro</option>
+                  <option value="Pix">Pix</option>
+                  <option value="Cartão">Cartão</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="receivedValue">Valor recebido</label>
+                <input id="receivedValue" type="text" inputmode="decimal" placeholder="0,00" />
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button id="clearCartBtn" class="btn btn-danger" type="button">Limpar carrinho</button>
+              <button id="finishSaleBtn" class="btn btn-primary" type="button">Finalizar venda</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="tabProdutos" class="tab-section">
+        <div class="page-grid two-panels">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Cadastro de produtos</h2>
+                <p class="panel-subtitle">Base inicial do novo PDV</p>
+              </div>
+            </div>
+
+            <div class="form-grid two-col">
+              <div class="field">
+                <label for="prodName">Nome</label>
+                <input id="prodName" type="text" placeholder="Ex.: Pão francês" />
+              </div>
+              <div class="field">
+                <label for="prodCode">Código</label>
+                <input id="prodCode" type="text" placeholder="Ex.: 1001" />
+              </div>
+            </div>
+
+            <div class="form-grid three-col">
+              <div class="field">
+                <label for="prodPrice">Preço</label>
+                <input id="prodPrice" type="text" inputmode="decimal" placeholder="0,00" />
+              </div>
+              <div class="field">
+                <label for="prodStock">Estoque</label>
+                <input id="prodStock" type="number" min="0" step="0.001" placeholder="0" />
+              </div>
+              <div class="field">
+                <label for="prodCategory">Categoria</label>
+                <input id="prodCategory" type="text" placeholder="Ex.: Padaria" />
+              </div>
+            </div>
+
+            <div class="form-grid two-col">
+              <div class="field">
+                <label for="prodUnitType">Tipo do produto</label>
+                <select id="prodUnitType">
+                  <option value="unit">Por unidade</option>
+                  <option value="weight">Por peso (kg)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Observação</label>
+                <input type="text" value="Para itens por peso, cadastre o preço por kg." readonly />
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button id="seedBtn" class="btn btn-secondary" type="button">Carregar base</button>
+              <button id="saveProductBtn" class="btn btn-primary" type="button">Salvar produto</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Lista de produtos</h2>
+                <p class="panel-subtitle">Consulta e edição</p>
+              </div>
+            </div>
+
+            <div class="form-grid two-col">
+              <div class="field field-grow">
+                <label for="productFilter">Buscar</label>
+                <input id="productFilter" type="text" placeholder="Nome, código ou categoria" />
+              </div>
+              <div class="field">
+                <label for="productCategoryFilter">Categoria</label>
+                <select id="productCategoryFilter">
+                  <option value="">Todas</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="productList" class="product-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabCaixa" class="tab-section">
+        <div class="page-grid two-panels">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Caixa</h2>
+                <p class="panel-subtitle">Controle de abertura e fechamento</p>
+              </div>
+            </div>
+
+            <div class="summary-grid three-col-cards">
+              <div class="summary-card">
+                <span>Status</span>
+                <strong id="cashStatus">Fechado</strong>
+              </div>
+              <div class="summary-card">
+                <span>Operador</span>
+                <strong id="cashOperator">-</strong>
+              </div>
+              <div class="summary-card">
+                <span>Abertura</span>
+                <strong id="cashOpeningValue">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="form-grid two-col">
+              <div class="field">
+                <label for="cashOpenValue">Valor de abertura</label>
+                <input id="cashOpenValue" type="text" inputmode="decimal" placeholder="0,00" />
+              </div>
+              <div class="field">
+                <label for="cashCloseValue">Valor contado no fechamento</label>
+                <input id="cashCloseValue" type="text" inputmode="decimal" placeholder="0,00" />
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button id="openCashBtn" class="btn btn-primary" type="button">Abrir caixa</button>
+              <button id="closeCashBtn" class="btn btn-danger" type="button">Fechar caixa</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Histórico de vendas</h2>
+                <p class="panel-subtitle">Últimas operações</p>
+              </div>
+            </div>
+
+            <div id="salesHistoryList" class="history-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabRelatorios" class="tab-section">
+        <div class="page-grid two-panels">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Relatórios rápidos</h2>
+                <p class="panel-subtitle">Visão geral operacional</p>
+              </div>
+            </div>
+
+            <div class="summary-grid three-col-cards">
+              <div class="summary-card">
+                <span>Produtos</span>
+                <strong id="repProducts">0</strong>
+              </div>
+              <div class="summary-card">
+                <span>Estoque</span>
+                <strong id="repStock">0</strong>
+              </div>
+              <div class="summary-card">
+                <span>Mais vendido</span>
+                <strong id="repTop">-</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Resumo operacional</h2>
+                <p class="panel-subtitle">Bloco preparado para expansão</p>
+              </div>
+            </div>
+
+            <div id="reportBox" class="report-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="venda" type="button">Venda</button>
+      <button class="nav-btn" data-tab="produtos" type="button">Produtos</button>
+      <button class="nav-btn" data-tab="caixa" type="button">Caixa</button>
+      <button class="nav-btn" data-tab="relatorios" type="button">Relatórios</button>
+    </nav>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
