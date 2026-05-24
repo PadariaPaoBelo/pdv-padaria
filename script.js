@@ -9,13 +9,10 @@ const ADMIN_ACTION_PASSWORD = '9138';
 // ==========================================
 // CONFIGURAÇÃO SUPERTEF / STONE
 // ==========================================
-// Cole seu token verdadeiro aqui, entre as aspas.
+// ATENÇÃO: em GitHub público esse token fica exposto.
+// Para teste funciona, mas depois o ideal é trocar para backend seguro.
 const SUPERTEF_TOKEN = '3f3eb892170f11f0c5a9b9b73c3c2c3bbe207e9f1423444fd5c0eb2e5f70404e';
-
-// POS cadastrada no painel SuperTEF.
 const SUPERTEF_POS_CHAVE = '2272';
-
-// Endpoint descoberto pelo DevTools.
 const SUPERTEF_ENDPOINT = 'https://api.supertef.com.br/api/pagamentos/intencao';
 
 
@@ -648,11 +645,6 @@ function getSuperTefTransactionType(paymentMethod) {
   return null;
 }
 
-function getInstallmentTypeForSuperTef(transactionType) {
-  if (transactionType === 'credito') return 'none';
-  return 'none';
-}
-
 async function enviarPagamentoSuperTef(valor, paymentMethod) {
   const transactionType = getSuperTefTransactionType(paymentMethod);
 
@@ -664,7 +656,7 @@ async function enviarPagamentoSuperTef(valor, paymentMethod) {
   }
 
   if (!SUPERTEF_TOKEN || SUPERTEF_TOKEN === 'COLE_SEU_TOKEN_AQUI') {
-    alert('Cole o TOKEN do SuperTEF dentro do arquivo script.js antes de usar a integração.');
+    alert('Cole o TOKEN do SuperTEF dentro do script.js antes de usar a integração.');
     return {
       success: false,
       message: 'Token SuperTEF não configurado.'
@@ -675,7 +667,7 @@ async function enviarPagamentoSuperTef(valor, paymentMethod) {
     pos_chave: SUPERTEF_POS_CHAVE,
     transaction_type: transactionType,
     valor: Number(Number(valor || 0).toFixed(2)),
-    installment_type: getInstallmentTypeForSuperTef(transactionType),
+    installment_type: 'none',
     installment_count: 1
   };
 
@@ -718,7 +710,7 @@ async function enviarPagamentoSuperTef(valor, paymentMethod) {
   }
 }
 
-async function confirmSuperTefPayment(total, paymentMethod) {
+async function enviarCobrancaStoneAntesDeSalvar(total, paymentMethod) {
   const transactionType = getSuperTefTransactionType(paymentMethod);
 
   if (!transactionType) return true;
@@ -730,10 +722,6 @@ async function confirmSuperTefPayment(total, paymentMethod) {
     voucher: 'Voucher'
   }[transactionType] || paymentMethod;
 
-  const shouldSend = confirm(`${label}: ${money(total)}\n\nEnviar esta cobrança para a Stone/SuperTEF agora?`);
-
-  if (!shouldSend) return false;
-
   const result = await enviarPagamentoSuperTef(total, paymentMethod);
 
   if (!result.success) {
@@ -741,13 +729,8 @@ async function confirmSuperTefPayment(total, paymentMethod) {
     return false;
   }
 
-  alert(`Cobrança enviada para a Stone.\n\nNa maquininha, toque em RECEBER e conclua o pagamento.\nDepois confirme a venda no PDV.`);
-
-  const approved = confirm(`O pagamento de ${money(total)} em ${label} foi APROVADO na maquininha?`);
-
-  return approved;
+  return confirm(`Cobrança enviada para a Stone.\n\nTipo: ${label}\nValor: ${money(total)}\n\nConclua na maquininha e clique em OK somente se o pagamento foi APROVADO.`);
 }
-
 
 async function finishSale() {
   if (!cash.isOpen) {
@@ -769,9 +752,9 @@ async function finishSale() {
     return;
   }
 
-  const superTefOk = await confirmSuperTefPayment(total, paymentMethod);
-  if (!superTefOk) {
-    alert('Venda não finalizada. Confirme o pagamento na Stone antes de salvar.');
+  const stoneOk = await enviarCobrancaStoneAntesDeSalvar(total, paymentMethod);
+  if (!stoneOk) {
+    alert('Venda não finalizada.');
     return;
   }
 
@@ -1569,7 +1552,7 @@ function ensurePaymentOptions() {
 
   select.innerHTML = `
     <option value="Dinheiro">Dinheiro</option>
-    <option value="Pix">Pix / Stone PIX</option>
+    <option value="Pix">Stone PIX</option>
     <option value="Crédito">Stone Crédito</option>
     <option value="Débito">Stone Débito</option>
     <option value="Voucher">Stone Voucher</option>
